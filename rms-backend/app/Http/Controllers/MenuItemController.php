@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\MenuItem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class MenuItemController extends Controller
 {
@@ -46,7 +45,7 @@ class MenuItemController extends Controller
 
         return $request->validate([
             'name' => [$required, 'string', 'max:255'],
-            'category' => [$required, Rule::in(['Breakfast', 'Fastfood', 'Seafood', 'Desserts'])],
+            'category' => [$required, 'string', 'max:100'],
             'price' => [$required, 'numeric', 'min:0'],
             'emoji' => ['nullable', 'string', 'max:50'],
             'prep_time' => ['sometimes', 'string', 'max:50'],

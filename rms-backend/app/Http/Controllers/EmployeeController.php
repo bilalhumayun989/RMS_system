@@ -11,7 +11,7 @@ class EmployeeController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(Employee::query()->orderBy('name')->get());
+        return response()->json(Employee::with('role')->orderBy('name')->get());
     }
 
     public function store(Request $request): JsonResponse
@@ -52,7 +52,7 @@ class EmployeeController extends Controller
             'name' => [$employee ? 'sometimes' : 'required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255', $emailRule],
             'phone' => ['nullable', 'string', 'max:50'],
-            'role' => [$employee ? 'sometimes' : 'required', Rule::in(['staff', 'admin', 'kitchen', 'manager'])],
+            'role_id' => [$employee ? 'sometimes' : 'required', 'exists:roles,id'],
             'pin' => ['nullable', 'string', 'max:20'],
             'is_active' => ['sometimes', 'boolean'],
         ]);

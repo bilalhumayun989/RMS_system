@@ -12,7 +12,7 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $credentials = $request->validate([
-            'role' => ['required', Rule::in(LoginCredential::ROLES)],
+            'type' => ['required', Rule::in(['admin', 'employee'])],
             'pin' => ['nullable', 'string'],
             'email' => ['nullable', 'string'],
             'password' => ['nullable', 'string'],
@@ -22,14 +22,18 @@ class AuthController extends Controller
 
         if ($login === null) {
             return response()->json([
-                'message' => LoginCredential::failureMessage($credentials['role']),
+                'message' => LoginCredential::failureMessage($credentials['type']),
             ], 401);
         }
 
+        $token = $login['employee']->createToken('auth_token')->plainTextToken;
+
         return response()->json([
             'message' => ucfirst($login['role']).' Login Successful!',
+            'token' => $token,
             'role' => $login['role'],
             'screen' => $login['screen'],
+            'permissions' => $login['permissions'],
         ]);
     }
 }

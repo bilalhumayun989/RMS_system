@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->nullable()->unique();
             $table->string('phone')->nullable();
-            $table->string('role');
+            $table->foreignId('role_id')->nullable()->constrained('roles')->onDelete('set null');
             $table->string('pin')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();

@@ -47,7 +47,7 @@ class RestaurantTableController extends Controller
         return $request->validate([
             'seats' => [$required, 'integer', 'min:1'],
             'section' => [$required, 'string', 'max:10'],
-            'status' => ['sometimes', Rule::in(['available', 'occupied', 'reserved'])],
+            'status' => ['sometimes', Rule::in(['available', 'occupied', 'reserved', 'served'])],
             'current_order_code' => ['nullable', 'string', 'max:50'],
             'amount' => ['nullable', 'numeric', 'min:0'],
             'duration' => ['nullable', 'integer', 'min:0'],

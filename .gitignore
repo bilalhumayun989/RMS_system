@@ -1,0 +1,31 @@
+# Environment files and local secrets
+**/.env
+**/.env.*
+!**/.env.example
+
+# Dependencies and generated frontend assets
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/public/build/
+**/vendor/
+
+# Laravel runtime files
+**/storage/logs/*.log
+**/storage/framework/cache/**
+**/storage/framework/sessions/**
+**/storage/framework/views/**
+**/bootstrap/cache/*.php
+
+# Local tooling and operating-system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.cursor/
+.codex/
+rms-frontend/.git.frontend-history/
+*.local
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*

@@ -1,0 +1,139 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Palette variables ────────────────────────────────────────────────────
+   bg:        #F4F2F0   warm off-white
+   card:      #FFFFFF   white
+   surface:   #ECEAE7   warm gray
+   text:      #1F221D   deep dark
+   muted:     #555754   gray-green
+   orange-50: #FEF4EE   palest tint
+   orange-100:#FDE8D8
+   orange-200:#FAD0B1
+   orange-300:#F7B083
+   orange-400:#F4904F
+   orange-500:#FF7A10   base accent
+   orange-600:#E86000   hover
+   orange-700:#CC5200   active / pressed
+   ────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --orange-50:  #FFF3E0;
+  --orange-100: #FFE0B2;
+  --orange-200: #FFCC80;
+  --orange-300: #FFB74D;
+  --orange-400: #FFA726;
+  --orange-500: #FF7A10;
+  --orange-600: #E86000;
+  --orange-700: #CC5200;
+
+  --bg:       #F4F2F0;
+  --card:     #FFFFFF;
+  --surface:  #ECEAE7;
+  --text:     #1F221D;
+  --muted:    #555754;
+  --border:   rgba(31,34,29,0.10);
+  --divider:  rgba(31,34,29,0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root { height: 100%; width: 100%; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 400;
+}
+
+/* ── Global font-weight cap: nothing heavier than semibold ──────────────── */
+strong, b { font-weight: 600; }
+
+/* ── Scrollbars ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D0CEC9; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #B5B2AC; }
+
+/* ── Selection ───────────────────────────────────────────────────────────── */
+::selection { background: var(--orange-200); color: var(--text); }
+
+/* ── Shared component helpers ────────────────────────────────────────────── */
+
+/* Card */
+.rms-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+/* Input */
+.rms-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: var(--text);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.rms-input::placeholder { color: rgba(85,87,84,0.55); }
+.rms-input:focus {
+  border-color: var(--orange-500);
+  background: var(--card);
+}
+
+/* Buttons */
+.rms-btn-primary {
+  background: var(--orange-500);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.rms-btn-primary:hover  { background: var(--orange-600); }
+.rms-btn-primary:active { transform: scale(0.98); background: var(--orange-700); }
+
+.rms-btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.rms-btn-secondary:hover { background: #E4E2DF; }
+
+/* Orange tint badges */
+.badge-orange {
+  background: var(--orange-100);
+  color: var(--orange-700);
+  border: 1px solid var(--orange-200);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Sidebar active item */
+.nav-active {
+  background: var(--orange-50);
+  color: var(--orange-600);
+  border-left: 3px solid var(--orange-500);
+}

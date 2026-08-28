@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 
-class Employee extends Model
+class Employee extends Authenticatable
 {
+    use HasApiTokens, Notifiable;
     protected $fillable = [
         'name',
         'email',
         'phone',
-        'role',
+        'role_id',
         'pin',
         'password',
         'is_active',
@@ -26,5 +29,10 @@ class Employee extends Model
         return [
             'is_active' => 'boolean',
         ];
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
     }
 }

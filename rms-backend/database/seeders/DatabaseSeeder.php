@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Employee;
 use App\Models\MenuItem;
 use App\Models\RestaurantTable;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -26,11 +27,11 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Test User', 'password' => 'password']
         );
 
+        $adminRole = Role::query()->firstOrCreate(['name' => 'Admin'], ['permissions' => ['/dashboard', '/tables', '/order', '/payment', '/kitchen', '/settings']]);
+
         Employee::query()->upsert([
-            ['name' => 'Safullah Zafar', 'email' => 'safullahzafar@gmail.com', 'phone' => null, 'role' => 'admin', 'pin' => null, 'password' => Hash::make('12345678'), 'is_active' => true],
-            ['name' => 'Staff User', 'email' => 'staff@example.com', 'phone' => null, 'role' => 'staff', 'pin' => '1234', 'password' => null, 'is_active' => true],
-            ['name' => 'Kitchen User', 'email' => 'kitchen@example.com', 'phone' => null, 'role' => 'kitchen', 'pin' => '9999', 'password' => null, 'is_active' => true],
-        ], ['email'], ['name', 'phone', 'role', 'pin', 'password', 'is_active']);
+            ['name' => 'Safullah Zafar', 'email' => 'safullahzafar@gmail.com', 'phone' => null, 'role_id' => $adminRole->id, 'pin' => null, 'password' => Hash::make('12345678'), 'is_active' => true],
+        ], ['email'], ['name', 'phone', 'role_id', 'pin', 'password', 'is_active']);
 
         foreach ([
             ['id' => 1, 'seats' => 2, 'section' => 'A', 'status' => 'available'],

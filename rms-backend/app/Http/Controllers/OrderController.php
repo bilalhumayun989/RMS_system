@@ -13,9 +13,23 @@ use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json(Order::query()->with('items')->latest()->get());
+        $query = Order::query()->with('items')->latest();
+
+        if ($request->filled('from')) {
+            $query->whereDate('created_at', '>=', $request->input('from'));
+        }
+
+        if ($request->filled('to')) {
+            $query->whereDate('created_at', '<=', $request->input('to'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        return response()->json($query->get());
     }
 
     public function store(Request $request): JsonResponse
