@@ -6,7 +6,7 @@ export interface AnimatedNumberProps {
   prefix?: string;
   suffix?: string;
 }
-
+// hi
 export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({ value, prefix = '', suffix = '' }) => {
   const elRef = useRef<HTMLSpanElement>(null);
 
