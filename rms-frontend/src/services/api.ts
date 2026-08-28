@@ -2,7 +2,15 @@ import { Customer, Expense, KitchenOrder, KitchenStatus, MenuCategory, MenuItem,
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api';
 
-type LoginRole = 'staff' | 'admin' | 'kitchen';
+interface LoginResponse {
+  message: string;
+  token: string;
+  role: string;
+  role_name: string;
+  name: string;
+  screen: string;
+  permissions: string[];
+}
 
 interface BackendMenuItem {
   id: number;
@@ -219,7 +227,7 @@ export const mapExpense = (e: BackendExpense): Expense => ({
 
 export const api = {
   login: (payload: { type: 'admin' | 'employee'; pin?: string; email?: string; password?: string }) =>
-    request<{ message: string; role: string; screen: string; permissions: string[] }>('/login', {
+    request<LoginResponse>('/login', {
       method: 'POST',
       body: JSON.stringify(payload),
     }),

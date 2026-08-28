@@ -31,7 +31,7 @@ export const LoginScreen: React.FC = () => {
     setPin(newPin);
     if (newPin.length === 4) {
       setTimeout(() => {
-        login(selectedRole, { pin: newPin }).then((screen) => {
+        login(selectedRole === 'admin' ? 'admin' : 'employee', { pin: newPin }).then((screen) => {
           if (!screen) setPin('');
         });
       }, 150);

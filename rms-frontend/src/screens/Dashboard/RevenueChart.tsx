@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Area, AreaChart,
 } from 'recharts';
 import { TrendingUp } from 'lucide-react';

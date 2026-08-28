@@ -35,7 +35,7 @@ export const RecentOrders: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order, i) => {
+            {orders.map((order) => {
               const s = statusStyle[order.status] ?? statusStyle['completed'];
               return (
                 <tr

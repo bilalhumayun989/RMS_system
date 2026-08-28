@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useOrderStore } from '../../store/useOrderStore';
 import { useTableStore } from '../../store/useTableStore';
 import { PageWrapper } from '../../components/layout/PageWrapper';
-import { MenuItem } from '../../types';
+import { CartItem, MenuItem } from '../../types';
 import {
   ArrowLeft, Search, Plus, Minus, FileText,
   AlertCircle, Sparkles, X,
@@ -12,7 +12,7 @@ import {
 // ── Cart Panel ────────────────────────────────────────────────
 interface CartPanelProps {
   compact?: boolean;
-  cartItems: ReturnType<typeof useOrderStore>['cartItems'];
+  cartItems: CartItem[];
   cartNotes: Record<number, string>;
   cartCount: number;
   subtotal: number;

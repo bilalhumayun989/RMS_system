@@ -1,23 +1,23 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { PageWrapper } from '../../components/layout/PageWrapper';
 import { api } from '../../services/api';
-import { Shield, Users, Plus, Edit2, Trash2, Check, X } from 'lucide-react';
+import { Shield, Plus, Edit2, Trash2, Check, X } from 'lucide-react';
 import { useToast } from '../../hooks/useToast';
 
 interface Role {
   id: number;
   name: string;
-  permissions: string[];
+  permissions?: string[];
   employees_count?: number;
 }
 
 interface Employee {
   id: number;
   name: string;
-  email: string | null;
-  phone: string | null;
-  role_id: number | null;
-  pin: string | null;
+  email?: string | null;
+  phone?: string | null;
+  role_id?: number | null;
+  pin?: string | null;
   is_active: boolean;
   role?: Role;
 }

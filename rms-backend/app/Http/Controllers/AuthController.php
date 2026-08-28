@@ -32,6 +32,8 @@ class AuthController extends Controller
             'message' => ucfirst($login['role']).' Login Successful!',
             'token' => $token,
             'role' => $login['role'],
+            'role_name' => $login['role_name'],
+            'name' => $login['name'],
             'screen' => $login['screen'],
             'permissions' => $login['permissions'],
         ]);
