@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../store/useAppStore';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -12,7 +12,7 @@ type LoginRole = 'employee' | 'admin';
 export const LoginScreen: React.FC = () => {
   const [selectedRole, setSelectedRole] = useState<LoginRole>('admin');
   const [pin, setPin] = useState('');
-  const [adminEmail, setAdminEmail] = useState('safullahzafar@gmail.com');
+  const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [open, setOpen] = useState(false);
 
