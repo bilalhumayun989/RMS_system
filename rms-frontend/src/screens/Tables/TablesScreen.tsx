@@ -1,17 +1,26 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTableStore } from '../../store/useTableStore';
 import { useOrderStore } from '../../store/useOrderStore';
 import { useKitchenStore } from '../../store/useKitchenStore';
 import { PageWrapper } from '../../components/layout/PageWrapper';
-import { Table } from '../../types';
-import { Users, Clock, Receipt, Plus, X, CheckCircle, Bell } from 'lucide-react';
+import { Table, KitchenOrder } from '../../types';
+import { Users, Clock, Receipt, Plus, X, CheckCircle, Bell, ChefHat } from 'lucide-react';
 
-type DisplayStatus = 'available' | 'occupied' | 'order-ready' | 'served' | 'reserved';
+type DisplayStatus = 'available' | 'cooking' | 'occupied' | 'order-ready' | 'served' | 'reserved';
 
-function getDisplayStatus(table: Table, readyTableIds: Set<number>): DisplayStatus {
-  if (table.status === 'occupied' && readyTableIds.has(table.id)) return 'order-ready';
-  return table.status as DisplayStatus;
+function getDisplayStatus(table: Table, kitchenOrders: KitchenOrder[]): DisplayStatus {
+  if (table.status === 'reserved') return 'reserved';
+  if (table.status === 'available') return 'available';
+  if (table.status === 'served') return 'served';
+
+  const kOrder = kitchenOrders.find((o) => o.tableId === table.id);
+  if (kOrder) {
+    if (kOrder.status === 'ready') return 'order-ready';
+    if (kOrder.status === 'new' || kOrder.status === 'cooking') return 'cooking';
+  }
+
+  return 'occupied';
 }
 
 const statusConfig: Record<DisplayStatus, {
@@ -23,6 +32,13 @@ const statusConfig: Record<DisplayStatus, {
     dot: 'bg-[#2E7D32]',
     label: 'Available',
     numberColor: 'text-[#1F221D]',
+  },
+  cooking: {
+    bg: 'bg-white border-[#FF7A10]/40 hover:border-[#FF7A10]/70 hover:bg-[#F4F2F0]',
+    badge: 'bg-[rgba(255,122,16,0.1)] text-[#FF7A10] border-[#FF7A10]/30',
+    dot: 'bg-[#FF7A10] animate-pulse',
+    label: 'Cooking in Kitchen',
+    numberColor: 'text-[#FF7A10] font-semibold',
   },
   occupied: {
     bg: 'bg-white border-[#FF7A10]/30 hover:border-[#FF7A10]/60 hover:bg-[#F4F2F0]',
@@ -39,7 +55,7 @@ const statusConfig: Record<DisplayStatus, {
     numberColor: 'text-[#C62828] font-semibold',
   },
   served: {
-    bg: 'bg-white border-[#1565C0]/30 hover:border-[#1565C0]/60 hover:bg-[#F4F2F0]',
+    bg: 'bg-white border-[#1565C0]/40 hover:border-[#1565C0]/70 hover:bg-[#F4F2F0]',
     badge: 'bg-[#1565C0]/10 text-[#1565C0] border-[#1565C0]/20',
     dot: 'bg-[#1565C0] animate-pulse',
     label: 'Food Served',
@@ -57,18 +73,30 @@ const statusConfig: Record<DisplayStatus, {
 interface TableModalProps {
   table: Table;
   displayStatus: DisplayStatus;
+  kitchenOrders: KitchenOrder[];
   onClose: () => void;
 }
 
-const TableModal: React.FC<TableModalProps> = ({ table, displayStatus, onClose }) => {
+const TableModal: React.FC<TableModalProps> = ({ table, displayStatus, kitchenOrders, onClose }) => {
   const navigate = useNavigate();
   const setTableId = useOrderStore((s) => s.setTableId);
   const updateTableStatus = useTableStore((s) => s.updateTableStatus);
+  const removeOrder = useKitchenStore((s) => s.removeOrder);
   const cfg = statusConfig[displayStatus];
+
+  const kOrder = kitchenOrders.find((o) => o.tableId === table.id);
 
   const handleNewOrder = () => { setTableId(table.id); navigate('/order'); onClose(); };
   const handleCheckout = () => { setTableId(table.id); navigate('/payment'); onClose(); };
   const handleFreeTable = () => { updateTableStatus(table.id, 'available'); onClose(); };
+
+  const handleMarkServed = async () => {
+    if (kOrder) {
+      await removeOrder(kOrder.id);
+    }
+    await updateTableStatus(table.id, 'served');
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 bg-[#1F221D]/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
@@ -92,17 +120,17 @@ const TableModal: React.FC<TableModalProps> = ({ table, displayStatus, onClose }
           <div className="bg-[#F4F2F0] border border-[#1F221D]/06 rounded-2xl p-4 mb-5 space-y-3">
             <div className="flex justify-between text-xs">
               <span className="text-[#555754]">Order ID</span>
-              <span className="font-semibold text-[#1F221D] font-mono bg-[#ECEAE7] px-2 py-0.5 rounded-md border border-[#1F221D]/06">{table.orderId}</span>
+              <span className="font-semibold text-[#1F221D] font-mono bg-[#ECEAE7] px-2 py-0.5 rounded-md border border-[#1F221D]/06">{table.orderId || '—'}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-[#555754]">Running Duration</span>
               <span className="font-semibold text-[#FF7A10] flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" /> {table.duration} mins active
+                <Clock className="w-3.5 h-3.5" /> {table.duration || 5} mins active
               </span>
             </div>
             <div className="flex justify-between text-sm pt-2 border-t border-[#1F221D]/06">
               <span className="text-[#555754] font-medium">Current Amount</span>
-              <span className="font-semibold text-[#2E7D32] text-base">PKR {table.amount?.toFixed(2)}</span>
+              <span className="font-semibold text-[#2E7D32] text-base">PKR {table.amount?.toFixed(2) ?? '0.00'}</span>
             </div>
           </div>
         )}
@@ -128,50 +156,58 @@ const TableModal: React.FC<TableModalProps> = ({ table, displayStatus, onClose }
               <Plus className="w-4 h-4" /> Create New Order
             </button>
           )}
-          {displayStatus === 'occupied' && (
+
+          {(displayStatus === 'cooking' || displayStatus === 'occupied') && (
             <>
+              <div className="flex items-center gap-2 px-3 py-2.5 bg-[#FF7A10]/10 border border-[#FF7A10]/20 rounded-xl mb-1">
+                <ChefHat className="w-4 h-4 text-[#FF7A10] flex-shrink-0 animate-bounce" />
+                <p className="text-xs text-[#FF7A10] font-semibold">Food is cooking in kitchen! Payment locked until food is served.</p>
+              </div>
               <button onClick={handleNewOrder} className="w-full flex items-center justify-center gap-2 py-3 bg-[#F4F2F0] text-[#1F221D] font-semibold rounded-xl hover:bg-[#ECEAE7] border border-[#1F221D]/10 active:scale-[0.98] transition-all text-sm cursor-pointer">
-                <Plus className="w-4 h-4 text-[#FF7A10]" /> Add Items / Modify
+                <Plus className="w-4 h-4 text-[#FF7A10]" /> Add Items / Modify Order
               </button>
-              <button onClick={handleCheckout} className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#2E7D32] text-white font-semibold rounded-xl hover:bg-[#2E7D32]/90 active:scale-[0.98] transition-all text-sm cursor-pointer">
-                <Receipt className="w-4 h-4" /> Process Checkout & Bill
-              </button>
-              <button onClick={handleFreeTable} className="w-full flex items-center justify-center gap-2 py-3 bg-[#C62828]/10 text-[#C62828] font-medium rounded-xl hover:bg-[#C62828]/15 border border-[#C62828]/20 active:scale-[0.98] transition-all text-xs mt-2 opacity-60 hover:opacity-100 cursor-pointer">
+              <div className="w-full flex items-center justify-center gap-2 py-3 bg-[#ECEAE7] text-[#555754]/60 font-semibold rounded-xl border border-[#1F221D]/06 text-xs cursor-not-allowed select-none">
+                <Receipt className="w-4 h-4" /> Collect Payment & Checkout (Awaiting Kitchen)
+              </div>
+              <button onClick={handleFreeTable} className="w-full flex items-center justify-center gap-2 py-3 bg-[#C62828]/10 text-[#C62828] font-medium rounded-xl hover:bg-[#C62828]/15 border border-[#C62828]/20 active:scale-[0.98] transition-all text-xs mt-1 cursor-pointer">
                 <X className="w-3.5 h-3.5" /> Force Free Table (Clear)
               </button>
             </>
           )}
+
           {displayStatus === 'order-ready' && (
             <>
               <div className="flex items-center gap-2 px-3 py-2.5 bg-[#C62828]/10 border border-[#C62828]/20 rounded-xl mb-1">
                 <Bell className="w-4 h-4 text-[#C62828] flex-shrink-0 animate-bounce" />
-                <p className="text-xs text-[#C62828] font-semibold">Order is ready — bring food to table!</p>
+                <p className="text-xs text-[#C62828] font-semibold">Order is ready! Serve food to table.</p>
               </div>
+              <button onClick={handleMarkServed} className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#1565C0] text-white font-semibold rounded-xl hover:bg-[#1565C0]/90 active:scale-[0.98] transition-all text-sm cursor-pointer">
+                <CheckCircle className="w-4 h-4" /> Mark Food Served & Deliver
+              </button>
               <button onClick={handleNewOrder} className="w-full flex items-center justify-center gap-2 py-3 bg-[#F4F2F0] text-[#1F221D] font-semibold rounded-xl hover:bg-[#ECEAE7] border border-[#1F221D]/10 active:scale-[0.98] transition-all text-sm cursor-pointer">
                 <Plus className="w-4 h-4 text-[#FF7A10]" /> Add Items / Modify
               </button>
-              <button onClick={handleCheckout} className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#2E7D32] text-white font-semibold rounded-xl hover:bg-[#2E7D32]/90 active:scale-[0.98] transition-all text-sm cursor-pointer">
-                <Receipt className="w-4 h-4" /> Process Checkout & Bill
-              </button>
-              <button onClick={handleFreeTable} className="w-full flex items-center justify-center gap-2 py-3 bg-[#C62828]/10 text-[#C62828] font-medium rounded-xl hover:bg-[#C62828]/15 border border-[#C62828]/20 active:scale-[0.98] transition-all text-xs mt-2 opacity-60 hover:opacity-100 cursor-pointer">
+              <button onClick={handleFreeTable} className="w-full flex items-center justify-center gap-2 py-3 bg-[#C62828]/10 text-[#C62828] font-medium rounded-xl hover:bg-[#C62828]/15 border border-[#C62828]/20 active:scale-[0.98] transition-all text-xs mt-1 cursor-pointer">
                 <X className="w-3.5 h-3.5" /> Force Free Table (Clear)
               </button>
             </>
           )}
+
           {displayStatus === 'served' && (
             <>
               <div className="flex items-center gap-2 px-3 py-2 bg-[#1565C0]/10 border border-[#1565C0]/20 rounded-xl mb-1">
                 <CheckCircle className="w-4 h-4 text-[#1565C0] flex-shrink-0" />
-                <p className="text-xs text-[#1565C0] font-semibold">Food has been served to this table</p>
+                <p className="text-xs text-[#1565C0] font-semibold">Food served to table. Customer can pay.</p>
               </div>
-              <button onClick={handleCheckout} className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#1565C0] text-white font-semibold rounded-xl hover:bg-[#1565C0]/90 active:scale-[0.98] transition-all text-sm cursor-pointer">
-                <Receipt className="w-4 h-4" /> Collect Payment
+              <button onClick={handleCheckout} className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#2E7D32] text-white font-semibold rounded-xl hover:bg-[#2E7D32]/90 active:scale-[0.98] transition-all text-sm cursor-pointer">
+                <Receipt className="w-4 h-4" /> Collect Payment & Checkout
               </button>
-              <button onClick={handleFreeTable} className="w-full flex items-center justify-center gap-2 py-3 bg-[#C62828]/10 text-[#C62828] font-medium rounded-xl hover:bg-[#C62828]/15 border border-[#C62828]/20 active:scale-[0.98] transition-all text-xs mt-1 opacity-60 hover:opacity-100 cursor-pointer">
+              <button onClick={handleFreeTable} className="w-full flex items-center justify-center gap-2 py-3 bg-[#C62828]/10 text-[#C62828] font-medium rounded-xl hover:bg-[#C62828]/15 border border-[#C62828]/20 active:scale-[0.98] transition-all text-xs mt-1 cursor-pointer">
                 <X className="w-3.5 h-3.5" /> Force Free Table (Clear)
               </button>
             </>
           )}
+
           {displayStatus === 'reserved' && (
             <>
               <button onClick={handleNewOrder} className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#FF7A10] text-white font-semibold rounded-xl hover:bg-[#E86000] active:scale-[0.98] transition-all text-sm cursor-pointer">
@@ -197,20 +233,32 @@ export const TablesScreen: React.FC = () => {
   const [filterSection, setFilterSection] = useState<string>('All');
 
   useEffect(() => {
-    fetchTables(); fetchKitchenOrders();
-    const interval = setInterval(() => { fetchTables(); fetchKitchenOrders(); }, 15000);
-    return () => clearInterval(interval);
+    fetchTables();
+    fetchKitchenOrders();
+    const interval = setInterval(() => {
+      fetchTables();
+      fetchKitchenOrders();
+    }, 3000);
+
+    const handleDemoUpdate = () => {
+      fetchTables();
+      fetchKitchenOrders();
+    };
+    window.addEventListener('demo-storage-updated', handleDemoUpdate);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('demo-storage-updated', handleDemoUpdate);
+    };
   }, [fetchTables, fetchKitchenOrders]);
 
   const sections = ['All', 'A', 'B', 'C', 'D'];
   const filtered = filterSection === 'All' ? tables : tables.filter((t) => t.section === filterSection);
 
-  const readyTableIds = new Set(kitchenOrders.filter((o) => o.status === 'ready').map((o) => o.tableId));
-
   const counts = {
     available: tables.filter((t) => t.status === 'available').length,
-    occupied: tables.filter((t) => t.status === 'occupied' && !readyTableIds.has(t.id)).length,
-    orderReady: tables.filter((t) => t.status === 'occupied' && readyTableIds.has(t.id)).length,
+    cooking: tables.filter((t) => getDisplayStatus(t, kitchenOrders) === 'cooking').length,
+    orderReady: tables.filter((t) => getDisplayStatus(t, kitchenOrders) === 'order-ready').length,
     served: tables.filter((t) => t.status === 'served').length,
     reserved: tables.filter((t) => t.status === 'reserved').length,
   };
@@ -221,7 +269,7 @@ export const TablesScreen: React.FC = () => {
         <div className="flex flex-wrap gap-2.5">
           {[
             { label: 'Available',   count: counts.available,  border: 'border-[#2E7D32]/20',  dot: 'bg-[#2E7D32]' },
-            { label: 'Occupied',    count: counts.occupied,   border: 'border-[#FF7A10]/20',  dot: 'bg-[#FF7A10]' },
+            { label: 'Cooking',     count: counts.cooking,    border: 'border-[#FF7A10]/20',  dot: 'bg-[#FF7A10] animate-pulse' },
             { label: 'Order Ready', count: counts.orderReady, border: 'border-[#C62828]/30',  dot: 'bg-[#C62828] animate-ping' },
             { label: 'Food Served', count: counts.served,     border: 'border-[#1565C0]/20',  dot: 'bg-[#1565C0]' },
             { label: 'Reserved',    count: counts.reserved,   border: 'border-[#555754]/20',  dot: 'bg-[#555754]' },
@@ -245,10 +293,10 @@ export const TablesScreen: React.FC = () => {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
         {filtered.map((table) => {
-          const displayStatus = getDisplayStatus(table, readyTableIds);
+          const displayStatus = getDisplayStatus(table, kitchenOrders);
           const cfg = statusConfig[displayStatus];
           const seatsArray = Array.from({ length: Math.min(table.seats, 8) });
-          const isActive = displayStatus === 'occupied' || displayStatus === 'order-ready' || displayStatus === 'served';
+          const isActive = displayStatus === 'cooking' || displayStatus === 'occupied' || displayStatus === 'order-ready' || displayStatus === 'served';
 
           return (
             <div key={table.id} className="relative group p-2">
@@ -281,11 +329,11 @@ export const TablesScreen: React.FC = () => {
                   </span>
                 </div>
                 <div className="w-full min-h-[24px] flex items-center justify-center pt-1 border-t border-[#1F221D]/06">
-                  {(displayStatus === 'occupied' || displayStatus === 'order-ready' || displayStatus === 'served') && table.amount ? (
+                  {isActive && table.amount ? (
                     <span className={`text-xs font-semibold font-mono tracking-tight px-2 py-0.5 rounded-md border ${
                       displayStatus === 'order-ready' ? 'text-[#C62828] bg-[#C62828]/05 border-[#C62828]/20' :
                       displayStatus === 'served' ? 'text-[#1565C0] bg-[#1565C0]/05 border-[#1565C0]/20' :
-                      'text-[#2E7D32] bg-[#2E7D32]/05 border-[#2E7D32]/10'
+                      'text-[#FF7A10] bg-[#FF7A10]/05 border-[#FF7A10]/20'
                     }`}>
                       PKR {table.amount.toFixed(2)}
                     </span>
@@ -306,7 +354,8 @@ export const TablesScreen: React.FC = () => {
       {selectedTable && (
         <TableModal
           table={tables.find(t => t.id === selectedTable.id) ?? selectedTable}
-          displayStatus={getDisplayStatus(tables.find(t => t.id === selectedTable.id) ?? selectedTable, readyTableIds)}
+          displayStatus={getDisplayStatus(tables.find(t => t.id === selectedTable.id) ?? selectedTable, kitchenOrders)}
+          kitchenOrders={kitchenOrders}
           onClose={() => setSelectedTable(null)}
         />
       )}

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useTime } from '../../hooks/useTime';
 import { useAppStore } from '../../store/useAppStore';
 import { Bell, Menu } from 'lucide-react';
@@ -21,6 +21,8 @@ export const Header: React.FC<HeaderProps> = ({ title, breadcrumb, onMenuClick }
   const formatDate = (d: Date) =>
     d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
+  const isDemoMode = useAppStore((state) => state.isDemoMode);
+
   return (
     <header className="bg-white border-b border-[#1F221D]/10 px-6 py-3.5 flex items-center justify-between select-none flex-shrink-0">
 
@@ -40,7 +42,14 @@ export const Header: React.FC<HeaderProps> = ({ title, breadcrumb, onMenuClick }
               {breadcrumb}
             </span>
           )}
-          <h2 className="text-lg font-black text-[#1F221D] leading-tight">{title}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-black text-[#1F221D] leading-tight">{title}</h2>
+            {isDemoMode && (
+              <span className="bg-[#FF7A10]/15 text-[#FF7A10] border border-[#FF7A10]/30 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                Demo Mode
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -69,3 +78,4 @@ export const Header: React.FC<HeaderProps> = ({ title, breadcrumb, onMenuClick }
 };
 
 export default Header;
+

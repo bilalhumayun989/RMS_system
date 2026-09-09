@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useKitchenStore } from '../../store/useKitchenStore';
 import { useTableStore } from '../../store/useTableStore';
 import { useAppStore } from '../../store/useAppStore';
@@ -106,6 +106,24 @@ const KitchenCard: React.FC<{ order: KitchenOrder }> = ({ order }) => {
 
 export const KitchenScreen: React.FC = () => {
   const orders = useKitchenStore((s) => s.orders);
+  const fetchKitchenOrders = useKitchenStore((s) => s.fetchKitchenOrders);
+
+  useEffect(() => {
+    fetchKitchenOrders();
+    const interval = setInterval(() => {
+      fetchKitchenOrders();
+    }, 3000);
+
+    const handleDemoUpdate = () => {
+      fetchKitchenOrders();
+    };
+    window.addEventListener('demo-storage-updated', handleDemoUpdate);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('demo-storage-updated', handleDemoUpdate);
+    };
+  }, [fetchKitchenOrders]);
 
   return (
     <PageWrapper className="h-full overflow-hidden p-4 bg-[#F4F2F0]">

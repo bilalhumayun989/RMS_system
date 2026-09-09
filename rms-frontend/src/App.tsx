@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { useAppStore } from './store/useAppStore';
 import { useKitchenStore } from './store/useKitchenStore';
 import { useOrderStore } from './store/useOrderStore';
@@ -23,15 +23,25 @@ import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { MobileNav } from './components/layout/MobileNav';
 import { Toast } from './components/ui/Toast';
+import { DemoBanner } from './components/layout/DemoBanner';
 
 export const App: React.FC = () => {
-  const { sidebarCollapsed, toggleSidebar } = useAppStore();
+  const { sidebarCollapsed, toggleSidebar, enableDemoMode } = useAppStore();
   const fetchTables = useTableStore((state) => state.fetchTables);
   const fetchMenuItems = useOrderStore((state) => state.fetchMenuItems);
   const fetchOrders = useOrderStore((state) => state.fetchOrders);
   const fetchKitchenOrders = useKitchenStore((state) => state.fetchKitchenOrders);
   
   const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.pathname === '/demo' || location.pathname === '/demo/') {
+      enableDemoMode();
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+  }, [location.pathname, enableDemoMode, navigate]);
 
   useEffect(() => {
     if (location.pathname === '/login') return;
@@ -91,48 +101,53 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="w-full h-screen flex bg-pos-bg text-pos-primary font-sans overflow-hidden select-none">
-      
-      {/* Sidebar Nav (Desktop & Tablet) */}
-      <div className="hidden md:block flex-shrink-0">
-        <Sidebar
-          collapsed={sidebarCollapsed}
-          onToggle={toggleSidebar}
-        />
-      </div>
+    <div className="w-full h-screen flex flex-col bg-pos-bg text-pos-primary font-sans overflow-hidden select-none">
+      {/* Top Demo Banner */}
+      <DemoBanner />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-full relative">
-        {/* Header Block */}
-        <Header
-          title={headerDetails.title}
-          breadcrumb={headerDetails.breadcrumb}
-          onMenuClick={toggleSidebar}
-        />
+      <div className="flex-1 flex min-w-0 h-full overflow-hidden relative">
+        {/* Sidebar Nav (Desktop & Tablet) */}
+        <div className="hidden md:block flex-shrink-0">
+          <Sidebar
+            collapsed={sidebarCollapsed}
+            onToggle={toggleSidebar}
+          />
+        </div>
 
-        {/* Dynamic Screen View Container */}
-        <main className="flex-1 flex flex-col overflow-hidden relative bg-pos-bg">
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardScreen />} />
-            <Route path="/tables" element={<TablesScreen />} />
-            <Route path="/reservations" element={<ReservationsScreen />} />
-            <Route path="/customers" element={<CustomersScreen />} />
-            <Route path="/services" element={<ServicesScreen />} />
-            <Route path="/order" element={<OrderScreen />} />
-            <Route path="/payment" element={<PaymentScreen />} />
-            <Route path="/kitchen" element={<KitchenScreen />} />
-            <Route path="/settings" element={<BusinessSettingsScreen />} />
-            <Route path="/table-management" element={<TableManagementScreen />} />
-            <Route path="/staff" element={<StaffScreen />} />
-            <Route path="/history" element={<HistoryScreen />} />
-            <Route path="/reports" element={<ReportsScreen />} />
-            <Route path="/supplies" element={<SuppliesScreen />} />
-          </Routes>
-        </main>
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-w-0 h-full relative">
+          {/* Header Block */}
+          <Header
+            title={headerDetails.title}
+            breadcrumb={headerDetails.breadcrumb}
+            onMenuClick={toggleSidebar}
+          />
 
-        {/* Mobile Navigation Bar */}
-        <MobileNav />
+          {/* Dynamic Screen View Container */}
+          <main className="flex-1 flex flex-col overflow-hidden relative bg-pos-bg">
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/demo" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<DashboardScreen />} />
+              <Route path="/tables" element={<TablesScreen />} />
+              <Route path="/reservations" element={<ReservationsScreen />} />
+              <Route path="/customers" element={<CustomersScreen />} />
+              <Route path="/services" element={<ServicesScreen />} />
+              <Route path="/order" element={<OrderScreen />} />
+              <Route path="/payment" element={<PaymentScreen />} />
+              <Route path="/kitchen" element={<KitchenScreen />} />
+              <Route path="/settings" element={<BusinessSettingsScreen />} />
+              <Route path="/table-management" element={<TableManagementScreen />} />
+              <Route path="/staff" element={<StaffScreen />} />
+              <Route path="/history" element={<HistoryScreen />} />
+              <Route path="/reports" element={<ReportsScreen />} />
+              <Route path="/supplies" element={<SuppliesScreen />} />
+            </Routes>
+          </main>
+
+          {/* Mobile Navigation Bar */}
+          <MobileNav />
+        </div>
       </div>
 
       {/* Global Toast Notification System */}
@@ -142,3 +157,4 @@ export const App: React.FC = () => {
 };
 
 export default App;
+

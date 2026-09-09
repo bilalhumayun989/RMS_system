@@ -16,14 +16,12 @@ interface KitchenStore {
 
 export const useKitchenStore = create<KitchenStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       orders: MOCK_KITCHEN_ORDERS,
       isLoading: false,
       error: '',
 
       fetchKitchenOrders: async () => {
-        // Don't clobber in-flight optimistic updates
-        if (get().isLoading) return;
         set({ isLoading: true, error: '' });
         try {
           const data = await api.getKitchenOrders();

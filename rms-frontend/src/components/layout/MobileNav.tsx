@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Grid, PlusCircle, ChefHat, CreditCard, CalendarDays, UserCircle2, UtensilsCrossed, Users, BarChart2, Package, History } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -13,6 +13,7 @@ export const MobileNav: React.FC<MobileNavProps> = () => {
   const location = useLocation();
   const activePath = location.pathname;
 
+  const isDemoMode = useAppStore((state) => state.isDemoMode);
   const permissions = useAppStore((state) => state.permissions);
   const navItems = [
     { id: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -27,7 +28,7 @@ export const MobileNav: React.FC<MobileNavProps> = () => {
     { id: '/order', label: 'Order', icon: PlusCircle, isSpecial: true },
     { id: '/kitchen', label: 'Kitchen', icon: ChefHat },
     { id: '/payment', label: 'Payment', icon: CreditCard },
-  ].filter(item => permissions.includes(item.id) || item.id === '/reservations' || item.id === '/customers' || item.id === '/services' || item.id === '/staff' || item.id === '/supplies' || item.id === '/history' || item.id === '/reports');
+  ].filter(item => isDemoMode || permissions.includes('*') || permissions.includes(item.id) || item.id === '/reservations' || item.id === '/customers' || item.id === '/services' || item.id === '/staff' || item.id === '/supplies' || item.id === '/history' || item.id === '/reports');
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-[#1F221D]/10 px-4 flex items-center justify-around z-40 select-none shadow-card">

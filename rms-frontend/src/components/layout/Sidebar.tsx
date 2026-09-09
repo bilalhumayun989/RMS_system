@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../store/useAppStore';
 import {
@@ -22,6 +22,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
   const location = useLocation();
   const activePath = location.pathname;
 
+  const isDemoMode = useAppStore((state) => state.isDemoMode);
   const permissions = useAppStore((state) => state.permissions);
   const userName = useAppStore((state) => state.userName);
   const userRoleName = useAppStore((state) => state.userRoleName);
@@ -45,6 +46,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
     { id: '/payment',            label: 'Payments',           icon: CreditCard },
     { id: '/settings',           label: 'Settings',           icon: Sparkles },
   ].filter((item) =>
+    isDemoMode ||
+    permissions.includes('*') ||
     permissions.includes(item.id) ||
     (permissions.includes('/admin') && item.id === '/settings') ||
     ['/reservations', '/customers', '/services', '/table-management', '/staff', '/supplies', '/history', '/reports'].includes(item.id)
