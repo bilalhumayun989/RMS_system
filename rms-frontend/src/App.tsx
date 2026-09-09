@@ -39,20 +39,32 @@ export const App: React.FC = () => {
     const href = window.location.href.toLowerCase();
     const isDemoRoute = 
       href.includes('demo') ||
-      location.pathname === '/demo' ||
-      location.pathname === '/demo/' ||
-      location.pathname.endsWith('/demo') ||
-      location.pathname.endsWith('/demo/') ||
-      location.pathname.includes('/demo') ||
+      location.pathname.includes('demo') ||
       location.search.includes('demo') ||
       location.hash.includes('demo');
 
     if (isDemoRoute) {
       enableDemoMode();
-      navigate('/dashboard', { replace: true });
-      return;
+
+      let targetPath = '/dashboard';
+      if (location.pathname.includes('/demo/')) {
+        const sub = location.pathname.split('/demo/')[1]?.trim();
+        if (sub) {
+          targetPath = sub.startsWith('/') ? sub : `/${sub}`;
+        }
+      }
+
+      if (
+        location.pathname === '/demo' ||
+        location.pathname === '/demo/' ||
+        location.pathname.endsWith('/demo') ||
+        location.pathname.endsWith('/demo/') ||
+        location.pathname.includes('/demo/')
+      ) {
+        navigate(targetPath, { replace: true });
+      }
     }
-  }, [location, enableDemoMode, navigate]);
+  }, [location.pathname, location.search, location.hash, enableDemoMode, navigate]);
 
   useEffect(() => {
     if (location.pathname === '/login') return;
@@ -139,6 +151,7 @@ export const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/demo" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/demo/*" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<DashboardScreen />} />
               <Route path="/tables" element={<TablesScreen />} />
               <Route path="/reservations" element={<ReservationsScreen />} />
