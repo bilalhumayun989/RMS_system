@@ -36,12 +36,21 @@ export const App: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (location.pathname === '/demo' || location.pathname === '/demo/') {
+    const isDemoRoute = 
+      location.pathname === '/demo' ||
+      location.pathname === '/demo/' ||
+      location.pathname.endsWith('/demo') ||
+      location.pathname.endsWith('/demo/') ||
+      location.pathname.includes('/demo') ||
+      location.search.includes('demo') ||
+      location.hash.includes('demo');
+
+    if (isDemoRoute) {
       enableDemoMode();
       navigate('/dashboard', { replace: true });
       return;
     }
-  }, [location.pathname, enableDemoMode, navigate]);
+  }, [location.pathname, location.search, location.hash, enableDemoMode, navigate]);
 
   useEffect(() => {
     if (location.pathname === '/login') return;
@@ -142,6 +151,7 @@ export const App: React.FC = () => {
               <Route path="/history" element={<HistoryScreen />} />
               <Route path="/reports" element={<ReportsScreen />} />
               <Route path="/supplies" element={<SuppliesScreen />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </main>
 
