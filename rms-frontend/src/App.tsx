@@ -36,7 +36,9 @@ export const App: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const href = window.location.href.toLowerCase();
     const isDemoRoute = 
+      href.includes('demo') ||
       location.pathname === '/demo' ||
       location.pathname === '/demo/' ||
       location.pathname.endsWith('/demo') ||
@@ -50,7 +52,7 @@ export const App: React.FC = () => {
       navigate('/dashboard', { replace: true });
       return;
     }
-  }, [location.pathname, location.search, location.hash, enableDemoMode, navigate]);
+  }, [location, enableDemoMode, navigate]);
 
   useEffect(() => {
     if (location.pathname === '/login') return;
