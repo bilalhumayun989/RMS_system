@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../store/useAppStore';
 import { getDemoStorage, MAX_DEMO_CREATIONS } from '../../utils/demoStorage';
 import { Sparkles, RotateCcw, AlertTriangle, LogOut, CheckCircle2 } from 'lucide-react';
@@ -6,6 +7,7 @@ import { Sparkles, RotateCcw, AlertTriangle, LogOut, CheckCircle2 } from 'lucide
 export const DemoBanner: React.FC = () => {
   const { isDemoMode, disableDemoMode, resetDemoData } = useAppStore();
   const [creationCount, setCreationCount] = useState<number>(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isDemoMode) return;
@@ -23,6 +25,14 @@ export const DemoBanner: React.FC = () => {
 
   const isLimitReached = creationCount >= MAX_DEMO_CREATIONS;
   const percentage = Math.min(100, Math.round((creationCount / MAX_DEMO_CREATIONS) * 100));
+
+  const handleExitDemo = () => {
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem('exited_demo', 'true');
+    }
+    disableDemoMode();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className="w-full bg-[#1F221D] text-white border-b border-[#FF7A10]/30 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs shadow-md z-40 select-none">
@@ -81,7 +91,7 @@ export const DemoBanner: React.FC = () => {
         </button>
 
         <button
-          onClick={disableDemoMode}
+          onClick={handleExitDemo}
           className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#C62828]/20 hover:bg-[#C62828]/30 text-[#FF6B6B] font-semibold transition-all border border-[#C62828]/40 cursor-pointer text-xs"
           title="Exit demo mode"
         >

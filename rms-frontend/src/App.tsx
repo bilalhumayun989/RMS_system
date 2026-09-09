@@ -36,14 +36,21 @@ export const App: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const href = window.location.href.toLowerCase();
-    const isDemoRoute = 
-      href.includes('demo') ||
-      location.pathname.includes('demo') ||
+    const hasExitedDemo = typeof window !== 'undefined' && window.sessionStorage.getItem('exited_demo') === 'true';
+
+    const isExplicitDemoRoute = 
+      location.pathname === '/demo' ||
+      location.pathname === '/demo/' ||
+      location.pathname.endsWith('/demo') ||
+      location.pathname.endsWith('/demo/') ||
+      location.pathname.includes('/demo/') ||
       location.search.includes('demo') ||
       location.hash.includes('demo');
 
-    if (isDemoRoute) {
+    if (isExplicitDemoRoute) {
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.removeItem('exited_demo');
+      }
       enableDemoMode();
 
       let targetPath = '/dashboard';
@@ -54,15 +61,12 @@ export const App: React.FC = () => {
         }
       }
 
-      if (
-        location.pathname === '/demo' ||
-        location.pathname === '/demo/' ||
-        location.pathname.endsWith('/demo') ||
-        location.pathname.endsWith('/demo/') ||
-        location.pathname.includes('/demo/')
-      ) {
-        navigate(targetPath, { replace: true });
-      }
+      navigate(targetPath, { replace: true });
+      return;
+    }
+
+    if (!hasExitedDemo && useAppStore.getState().isDemoMode) {
+      enableDemoMode();
     }
   }, [location.pathname, location.search, location.hash, enableDemoMode, navigate]);
 
