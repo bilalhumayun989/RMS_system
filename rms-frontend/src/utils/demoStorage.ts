@@ -5,6 +5,7 @@ export const MAX_DEMO_CREATIONS = 10;
 
 export interface DemoSandboxData {
   creationCount: number;
+  creationCounts?: Record<string, number>;
   menuItems: Array<{
     id: number;
     name: string;
@@ -93,6 +94,7 @@ const getTodayDate = (): string => new Date().toISOString().slice(0, 10);
 
 const getDefaultDemoData = (): DemoSandboxData => ({
   creationCount: 0,
+  creationCounts: {},
   menuItems: [
     {
       id: 101,
@@ -229,6 +231,7 @@ export const getDemoStorage = (): DemoSandboxData => {
     const parsed = JSON.parse(raw) as Partial<DemoSandboxData>;
     return {
       creationCount: typeof parsed.creationCount === 'number' ? parsed.creationCount : 0,
+      creationCounts: parsed.creationCounts ?? {},
       menuItems: parsed.menuItems ?? getDefaultDemoData().menuItems,
       tables: parsed.tables ?? getDefaultDemoData().tables,
       orders: parsed.orders ?? getDefaultDemoData().orders,
@@ -263,13 +266,18 @@ export const saveDemoStorage = (data: DemoSandboxData): void => {
   }
 };
 
-export const checkAndIncrementDemoCreation = (): DemoSandboxData => {
+export const checkAndIncrementDemoCreation = (type: string = 'item'): DemoSandboxData => {
   const data = getDemoStorage();
-  if (data.creationCount >= MAX_DEMO_CREATIONS) {
+  if (!data.creationCounts) {
+    data.creationCounts = {};
+  }
+  const currentCount = data.creationCounts[type] || 0;
+  if (currentCount >= MAX_DEMO_CREATIONS) {
     throw new Error(
-      `Demo limit reached (${MAX_DEMO_CREATIONS}/${MAX_DEMO_CREATIONS} creations used)! Demo session ended. You cannot create any more items.`
+      `Demo limit reached (${MAX_DEMO_CREATIONS}/${MAX_DEMO_CREATIONS} ${type}s created)! You cannot create any more of this item type, but you can still create other items.`
     );
   }
+  data.creationCounts[type] = currentCount + 1;
   data.creationCount += 1;
   saveDemoStorage(data);
   return data;

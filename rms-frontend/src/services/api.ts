@@ -261,7 +261,7 @@ export const api = {
     description?: string; image?: string; discount?: number;
   }) => {
     if (isDemoMode()) {
-      const data = checkAndIncrementDemoCreation();
+      const data = checkAndIncrementDemoCreation('menu item');
       const newItem = {
         id: Date.now(),
         name: payload.name,
@@ -319,7 +319,7 @@ export const api = {
 
   createTable: async (payload: { seats: number; section: string; status?: string }) => {
     if (isDemoMode()) {
-      const data = checkAndIncrementDemoCreation();
+      const data = checkAndIncrementDemoCreation('table');
       const newTable = {
         id: Date.now(),
         seats: payload.seats,
@@ -387,7 +387,7 @@ export const api = {
     items: { menu_item_id: number; quantity: number }[];
   }) => {
     if (isDemoMode()) {
-      const data = checkAndIncrementDemoCreation();
+      const data = checkAndIncrementDemoCreation('order');
       const code = `DEMO-ORD-${Math.floor(1000 + Math.random() * 9000)}`;
       let subtotal = 0;
       const orderItems = payload.items.map((pi) => {
@@ -497,7 +497,7 @@ export const api = {
 
   createRole: async (payload: any) => {
     if (isDemoMode()) {
-      const data = checkAndIncrementDemoCreation();
+      const data = checkAndIncrementDemoCreation('role');
       const newRole = { id: Date.now(), name: payload.name };
       data.roles.push(newRole);
       saveDemoStorage(data);
@@ -538,7 +538,7 @@ export const api = {
 
   createEmployee: async (payload: any) => {
     if (isDemoMode()) {
-      const data = checkAndIncrementDemoCreation();
+      const data = checkAndIncrementDemoCreation('employee');
       const newEmployee = {
         id: Date.now(),
         name: payload.name,
@@ -601,7 +601,7 @@ export const api = {
     notes?: string;
   }) => {
     if (isDemoMode()) {
-      const data = checkAndIncrementDemoCreation();
+      const data = checkAndIncrementDemoCreation('attendance log');
       const emp = data.employees.find((e) => e.id === payload.employee_id);
       const newLog = {
         id: Date.now(),
@@ -659,7 +659,7 @@ export const api = {
 
   createCustomer: async (payload: { name: string; phone?: string; email?: string; notes?: string }) => {
     if (isDemoMode()) {
-      const data = checkAndIncrementDemoCreation();
+      const data = checkAndIncrementDemoCreation('customer');
       const newCustomer = {
         id: Date.now(),
         name: payload.name,
@@ -727,7 +727,7 @@ export const api = {
 
   createExpense: async (payload: { title: string; amount: number; category: string; date: string; notes?: string }) => {
     if (isDemoMode()) {
-      const data = checkAndIncrementDemoCreation();
+      const data = checkAndIncrementDemoCreation('expense');
       const newExpense = {
         id: Date.now(),
         title: payload.title,
@@ -785,7 +785,7 @@ export const api = {
     unit_cost?: number; supplier?: string; category: string; notes?: string; is_active?: boolean;
   }) => {
     if (isDemoMode()) {
-      const data = checkAndIncrementDemoCreation();
+      const data = checkAndIncrementDemoCreation('supply');
       const newSupply: Supply = {
         id: Date.now(),
         name: payload.name,
